@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "529153928921",
+    "project_id": "zibit-445616-fd44b",
+    "storage_bucket": "zibit-445616-fd44b.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:529153928921:android:38ca71cd1631c4d70bd8c8",
+        "android_client_info": {
+          "package_name": "com.example.zibit_flutter"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyA9rmt4ywp54254Sf0PJcObLO0IyRk6jaw"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

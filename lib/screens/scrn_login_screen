@@ -1,0 +1,134 @@
+import 'package:flutter/material.dart';
+import 'package:zibit_flutter/workers/wrkr_auth_service.dart';
+import 'package:zibit_flutter/workers/wrkr_api_service.dart';
+
+class LoginScreen extends StatefulWidget {
+  @override
+  _LoginScreenState createState() => _LoginScreenState();
+}
+
+class _LoginScreenState extends State<LoginScreen> {
+  final LoginService _loginService = LoginService();
+  final ApiService _apiService = ApiService(baseUrl: 'http://192.168.68.61:8083/api/Query');
+  // final ApiService _apiService = ApiService(baseUrl: 'http://192.168.68.61:8083/api/Test');
+
+  void _handleGoogleLogin() async {
+    try {
+      final user = await _loginService.signInWithGoogle();
+      if (user != null) {
+        print('Google Login Success: $user');
+
+        // Prepare the data to send to your API
+        final userData = {
+ 
+          "socialID": user['idToken'], // Use the idToken as unique identifier
+          "socialType": ["Google"],
+          "email": user['email'],
+          "firstName": user['name']?.split(' ')?.first ?? '',
+          "lastName": user['name']?.split(' ')?.last ?? '',
+          "username": user['email'], // Use email as username
+          "phoneNumber": '', // Optional, can be populated later
+          "dateOfBirth": null, // Optional
+          "gender": '', // Optional
+          "country": '', // Optional
+          "languagePreference": "en", // Default value
+          "themePreference": "dark", // Default value
+          "notificationPreferences": "all", // Default value
+        };
+
+        // Send data to your API
+        try {
+
+          
+
+
+          await _apiService.saveUserData(userData);
+          
+          print('User data saved successfully.');
+          // Navigate to the next screen
+          Navigator.pushReplacementNamed(context, '/home');
+        } catch (apiError) {
+          print('Failed to save user data: ${apiError.toString()}');
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Failed to save user data: $apiError')),
+          );
+        }
+      } else {
+        print('Google Login Cancelled');
+      }
+    } catch (e) {
+      print('Error during Google login: $e');
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Login failed. Please try again.')),
+      );
+    }
+  }
+
+void _handleFacebookLogin() async {
+  try {
+    final user = await _loginService.signInWithFacebook();
+    if (user != null) {
+      print('Facebook Login Success: $user');
+
+      // Prepare the data to send to your API
+      final userData = {
+        "socialID": user['socialID'], // Facebook account ID
+        "socialType": "Facebook",
+        "email": user['email'],
+        "firstName": user['firstName'],
+        "lastName": user['lastName'],
+        "username": user['username'], // Use email as username
+        "phoneNumber": '', // Optional, can be populated later
+        "dateOfBirth": null, // Optional
+        "gender": '', // Optional
+        "country": '', // Optional
+        "languagePreference": "en", // Default value
+        "themePreference": "dark", // Default value
+        "notificationPreferences": "all", // Default value
+      };
+
+      // Send data to your API
+      try {
+        await _apiService.saveUserData(userData);
+        print('User data saved successfully.');
+        // Navigate to the next screen
+        Navigator.pushReplacementNamed(context, '/home');
+      } catch (apiError) {
+        print('Failed to save user data: $apiError');
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Failed to save user data: $apiError')),
+        );
+      }
+    } else {
+      print('Facebook Login Cancelled');
+    }
+  } catch (e) {
+    print('Error during Facebook login: $e');
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('Login failed. Please try again.')),
+    );
+  }
+}
+
+  @override
+Widget build(BuildContext context) {
+  return Scaffold(
+    appBar: AppBar(title: Text('Login')),
+    body: Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          ElevatedButton(
+            onPressed: _handleGoogleLogin,
+            child: Text('Login with Google'),
+          ),
+          ElevatedButton(
+            onPressed: _handleFacebookLogin,
+            child: Text('Login with Facebook'),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}

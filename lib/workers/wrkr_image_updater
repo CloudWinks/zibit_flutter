@@ -1,0 +1,31 @@
+class ImageUpdater extends StatefulWidget {
+  @override
+  _ImageUpdaterState createState() => _ImageUpdaterState();
+}
+
+class _ImageUpdaterState extends State<ImageUpdater> {
+  ImageProvider<Object> _imageProvider = AssetImage('assets/placeholder.png');
+
+  void setImage(ImageProvider<Object> image) {
+    setState(() {
+      _imageProvider = image;
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        // Use the Image widget and provide the ImageProvider
+        Image(image: _imageProvider),
+        ElevatedButton(
+          onPressed: () {
+            // Update the image using a NetworkImage
+            setImage(NetworkImage('https://example.com/new_image.png'));
+          },
+          child: Text('Update Image'),
+        ),
+      ],
+    );
+  }
+}

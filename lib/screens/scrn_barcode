@@ -1,0 +1,47 @@
+import 'package:flutter/material.dart';
+import 'package:barcode_widget/barcode_widget.dart';
+
+class ScrnPresentation extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    // Barcode data
+    final String barcodeData = "123456789123123123";
+
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('Presentation Screen'),
+      ),
+      body: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            // Barcode widget
+            BarcodeWidget(
+              barcode: Barcode.code128(), // Barcode type: Code 128
+              data: barcodeData,         // Data to encode
+              width: 300,
+              height: 150,
+              drawText: false,           // Don't draw text below the barcode
+            ),
+            SizedBox(height: 16),
+            // Text below the barcode
+            Text(
+              barcodeData,
+              style: TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.bold,
+              ),
+              textAlign: TextAlign.center,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+void main() {
+  runApp(MaterialApp(
+    home: ScrnPresentation(),
+  ));
+}
