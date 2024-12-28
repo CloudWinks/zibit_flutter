@@ -22,7 +22,7 @@ class _LoginScreenState extends State<LoginScreen> {
         final userData = {
  
           "socialID": user['idToken'], // Use the idToken as unique identifier
-          "socialType": ["Google"],
+          "socialType": "Google",
           "email": user['email'],
           "firstName": user['name']?.split(' ')?.first ?? '',
           "lastName": user['name']?.split(' ')?.last ?? '',

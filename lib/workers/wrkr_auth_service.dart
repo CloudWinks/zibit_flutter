@@ -2,7 +2,9 @@ import 'package:google_sign_in/google_sign_in.dart';
 import 'package:flutter_facebook_auth/flutter_facebook_auth.dart';
 
 class LoginService {
-  final GoogleSignIn _googleSignIn = GoogleSignIn();
+  final GoogleSignIn _googleSignIn = GoogleSignIn(
+      clientId:
+          '572898597844-8piriqvtp98pb04ui0hbh9lcftug19dv.apps.googleusercontent.com');
 
   Future<Map<String, dynamic>?> signInWithGoogle() async {
     try {
@@ -13,7 +15,7 @@ class LoginService {
         'email': account.email,
         'name': account.displayName,
         'photoUrl': account.photoUrl,
-        'idToken': '1326538', //auth.idToken,
+        'idToken': auth.idToken,
       };
     } catch (error) {
       throw Exception('Google Sign-In failed: $error');
