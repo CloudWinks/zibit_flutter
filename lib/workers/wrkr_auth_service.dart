@@ -1,4 +1,5 @@
 import 'package:google_sign_in/google_sign_in.dart';
+import 'dart:convert';
 import 'package:flutter_facebook_auth/flutter_facebook_auth.dart';
 
 class LoginService {
@@ -10,13 +11,29 @@ class LoginService {
     try {
       final GoogleSignInAccount? account = await _googleSignIn.signIn();
       if (account == null) return null; // The user canceled the sign-in
+
       final GoogleSignInAuthentication auth = await account.authentication;
-      return {
-        'email': account.email,
-        'name': account.displayName,
-        'photoUrl': account.photoUrl,
-        'idToken': auth.idToken,
-      };
+      final idToken = auth.idToken;
+
+      if (idToken != null) {
+        // Decode the ID token to extract the 'sub' field
+        final parts = idToken.split('.');
+        if (parts.length == 3) {
+          final payload =
+              base64Url.normalize(parts[1]); // Second part is the payload
+          final payloadMap = jsonDecode(utf8.decode(base64Url.decode(payload)));
+
+          // Return 'sub' as the SocialID
+          return {
+            'email': account.email,
+            'name': account.displayName,
+            'photoUrl': account.photoUrl,
+            'socialID': payloadMap['sub'], // Extracted 'sub' field as SocialID
+          };
+        }
+      }
+
+      throw Exception('Failed to decode idToken'); // Handle decoding errors
     } catch (error) {
       throw Exception('Google Sign-In failed: $error');
     }

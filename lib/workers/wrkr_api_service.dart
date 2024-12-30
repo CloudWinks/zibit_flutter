@@ -8,10 +8,9 @@ class ApiService {
 
   Future<void> saveUserData(Map<String, dynamic> userData) async {
     final url = Uri.parse('$baseUrl/UpdateOrCreateUserBySocialID');
-    // final url = Uri.parse('$baseUrl/Test');
     try {
       print('Sending user data: ${jsonEncode(userData)}');
-      //String jsonbody = jsonEncode(userData); //inspect var for json parsing
+
       final response = await http.post(
         url,
         headers: {'Content-Type': 'application/json'},
@@ -27,11 +26,23 @@ class ApiService {
 
         if (responseBody is List && responseBody.isNotEmpty) {
           final fields = responseBody[0]['fields'];
-          final newUserId = fields
-              .firstWhere((field) => field['name'] == 'NewUserID')['value'];
-          print('User created successfully with ID: $newUserId');
+          print('Fields: $fields');
+
+          final userIdField = fields.firstWhere(
+            (field) =>
+                field['name'] == 'NewUserID' ||
+                field['name'] == 'UpdatedUserID',
+            orElse: () => {'value': null},
+          )['value'];
+
+          if (userIdField != null) {
+            print('User processed successfully with ID: $userIdField');
+          } else {
+            print(
+                'Neither NewUserID nor UpdatedUserID was found in the response fields.');
+          }
         } else {
-          throw Exception('Unexpected API response format: ${response.body}');
+          print('Unexpected API response format: ${response.body}');
         }
       } else {
         throw Exception(

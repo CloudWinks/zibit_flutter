@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:zibit_flutter/screens/scrn_home.dart';
 import 'package:zibit_flutter/workers/wrkr_auth_service.dart';
 import 'package:zibit_flutter/workers/wrkr_api_service.dart';
 
@@ -21,7 +22,7 @@ class _LoginScreenState extends State<LoginScreen> {
         // Prepare the data to send to your API
         final userData = {
  
-          "socialID": user['idToken'], // Use the idToken as unique identifier
+          "socialID": user['socialID'] ?? user['idToken'], // Use the idToken as unique identifier
           "socialType": "Google",
           "email": user['email'],
           "firstName": user['name']?.split(' ')?.first ?? '',
