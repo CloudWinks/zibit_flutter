@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:zibit_flutter/workers/wrkr_singleton.dart';
 
 class HomeScreen extends StatelessWidget {
   final List<String> cwApps;
@@ -17,17 +18,25 @@ class HomeScreen extends StatelessWidget {
           children: [
             // App Logo
             Image.asset(
-              'assets/zibit.png',
+              'assets/cloudwinkslogo.png',
               width: 150,
               height: 150,
             ),
             const SizedBox(height: 20),
             const Text(
-              'CWApps List',
+              'Welcome to CloudWinks',
               style: TextStyle(
                 fontSize: 24,
                 fontWeight: FontWeight.bold,
                 color: Colors.black,
+              ),
+            ),
+            const SizedBox(height: 10),
+            Text(
+              'Hello, ${AppSingleton().name ?? 'User'}',
+              style: const TextStyle(
+                fontSize: 18,
+                color: Colors.black54,
               ),
             ),
             const SizedBox(height: 20),
@@ -35,9 +44,14 @@ class HomeScreen extends StatelessWidget {
               child: ListView.builder(
                 itemCount: cwApps.length,
                 itemBuilder: (context, index) {
-                  return ListTile(
-                    leading: const Icon(Icons.apps),
-                    title: Text(cwApps[index]),
+                  return Card(
+                    child: ListTile(
+                      leading: const Icon(Icons.apps, color: Colors.blue),
+                      title: Text(
+                        cwApps[index],
+                        style: const TextStyle(color: Colors.black),
+                      ),
+                    ),
                   );
                 },
               ),

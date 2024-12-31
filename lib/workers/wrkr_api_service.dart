@@ -2,56 +2,66 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 
 class ApiService {
-  final String baseUrl;
+  // Base URL
+  static const String _baseUrl = 'http://192.168.68.61:8083/api';
 
-  ApiService({required this.baseUrl});
-
-  Future<void> saveUserData(Map<String, dynamic> userData) async {
-    final url = Uri.parse('$baseUrl/UpdateOrCreateUserBySocialID');
+  // Generic method for making POST requests
+  Future<dynamic> callAPI(String endpoint, Map<String, dynamic> data) async {
+    final String url = '$_baseUrl$endpoint';
     try {
-      print('Sending user data: ${jsonEncode(userData)}');
+      print('Sending data to: $url');
+      print('Request body: ${jsonEncode(data)}');
 
       final response = await http.post(
-        url,
+        Uri.parse(url),
         headers: {'Content-Type': 'application/json'},
-        body: jsonEncode(userData),
+        body: jsonEncode(data),
       );
 
       print('Response status: ${response.statusCode}');
       print('Response body: ${response.body}');
 
       if (response.statusCode == 200) {
-        // Parse the response body
         final responseBody = jsonDecode(response.body);
-
-        if (responseBody is List && responseBody.isNotEmpty) {
-          final fields = responseBody[0]['fields'];
-          print('Fields: $fields');
-
-          final userIdField = fields.firstWhere(
-            (field) =>
-                field['name'] == 'NewUserID' ||
-                field['name'] == 'UpdatedUserID',
-            orElse: () => {'value': null},
-          )['value'];
-
-          if (userIdField != null) {
-            print('User processed successfully with ID: $userIdField');
-          } else {
-            print(
-                'Neither NewUserID nor UpdatedUserID was found in the response fields.');
-          }
-        } else {
-          print('Unexpected API response format: ${response.body}');
-        }
+        print('Data processed successfully: $responseBody');
+        return responseBody;
       } else {
         throw Exception(
-          'Failed to save user. Status Code: ${response.statusCode}, Body: ${response.body}',
+          'Failed to save data. Status Code: ${response.statusCode}, Body: ${response.body}',
         );
       }
     } catch (error) {
-      print('Error while saving user: $error');
-      throw Exception('Error while saving user: $error');
+      print('Error while saving data: $error');
+      throw Exception('Error while saving data: $error');
+    }
+  }
+
+  // Generic GET method
+  Future<dynamic> getData(String endpoint) async {
+    final String url = '$_baseUrl$endpoint'; // Use _baseUrl here
+
+    try {
+      print('Sending GET request to: $url');
+
+      final response = await http.get(
+        Uri.parse(url),
+        headers: {'Content-Type': 'application/json'},
+      );
+
+      print('Response status: ${response.statusCode}');
+      print('Response body: ${response.body}');
+
+      if (response.statusCode == 200) {
+        // Return parsed response body
+        return jsonDecode(response.body);
+      } else {
+        throw Exception(
+          'Failed to fetch data. Status Code: ${response.statusCode}, Body: ${response.body}',
+        );
+      }
+    } catch (error) {
+      print('Error while fetching data: $error');
+      throw Exception('Error while fetching data: $error');
     }
   }
 }

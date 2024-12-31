@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:zibit_flutter/workers/wrkr_request_handler.dart';
-import 'package:zibit_flutter/screens/scrn_login_screen';
+import 'package:zibit_flutter/screens/scrn_login_screen.dart';
 
 class ScrSplash extends StatefulWidget {
   const ScrSplash({super.key});
@@ -10,7 +9,6 @@ class ScrSplash extends StatefulWidget {
 }
 
 class _ScrSplashState extends State<ScrSplash> {
-  late RequestHandler apiHandler;
   String errorMessage = '';
 
   @override
@@ -20,17 +18,8 @@ class _ScrSplashState extends State<ScrSplash> {
   }
 
   Future<void> _initialize() async {
-    print('Initializing API Handler...');
-    apiHandler = RequestHandler(
-        baseUrl:
-            'http://192.168.68.61:8083/api/Query/UpdateOrCreateUserBySocialID');
-    // 'http://192.168.68.61:8083/api/Test');
-
     try {
-      //  print('Fetching CWApps...');
-      // Fetch CWApps data (optional, depending on your app logic)
-      //  await apiHandler.queryCWApps('CWApps');
-      // print('CWApps fetched successfully.');
+      print('Splash screen initialization...');
       await Future.delayed(const Duration(seconds: 3));
 
       // Navigate to the login screen
@@ -40,7 +29,7 @@ class _ScrSplashState extends State<ScrSplash> {
       );
     } catch (e) {
       setState(() {
-        errorMessage = 'Failed to load data: $e';
+        errorMessage = 'Failed to initialize: $e';
       });
     }
   }
@@ -55,7 +44,7 @@ class _ScrSplashState extends State<ScrSplash> {
           children: [
             // App Logo
             Image.asset(
-              'assets/zibit.png',
+              'assets/cloudwinkslogo.png',
               width: 150,
               height: 150,
             ),
@@ -69,7 +58,7 @@ class _ScrSplashState extends State<ScrSplash> {
               ),
             const SizedBox(height: 20),
             const Text(
-              'Welcome to Zibit',
+              'Welcome to CloudWinks',
               style: TextStyle(
                 fontSize: 24,
                 fontWeight: FontWeight.bold,

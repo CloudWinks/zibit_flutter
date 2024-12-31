@@ -1,38 +1,51 @@
-// import 'dart:convert';
-// import 'package:http/http.dart' as http;
+class AppSingleton {
+  // Private constructor
+  AppSingleton._privateConstructor();
+  static final AppSingleton _instance = AppSingleton._privateConstructor();
 
-// class AppDataSingleton {
-//   // Private constructor
-//   AppDataSingleton._privateConstructor();
+  // Factory to return the same instance
+  factory AppSingleton() => _instance;
 
-//   // Single instance
-//   static final AppDataSingleton instance =
-//       AppDataSingleton._privateConstructor();
+  // Private variables
+  int? _userId;
+  String? _name;
+  String? _email;
 
-//   // List to store fetched apps
-//   List<String> cwApps = [];
+  // Getter for userId
+  int? get userId => _userId;
 
-//   /// Fetch data from the specified URL and store it in the singleton
-//   Future<void> fetchAndStoreCWApps() async {
-//     const String apiUrl = 'http://192.168.68.61:8083/api/CWApps';
+  // Setter for userId with validation
+  set userId(int? value) {
+    if (value != null && value < 0) {
+      throw Exception('User ID cannot be negative.');
+    }
+    _userId = value;
+  }
 
-//     try {
-//       final response = await http.get(Uri.parse(apiUrl));
+  // Getter for name
+  String? get name => _name;
 
-//       if (response.statusCode == 200) {
-//         // Parse the JSON response into a list of strings
-//         final List<dynamic> data = jsonDecode(response.body);
-//         cwApps = data.map((e) => e.toString()).toList();
-//       } else {
-//         throw Exception('Failed to fetch CWApps: HTTP ${response.statusCode}');
-//       }
-//     } catch (e) {
-//       throw Exception('Error fetching CWApps: $e');
-//     }
-//   }
+  // Setter for name with formatting
+  set name(String? value) {
+    _name = value?.trim();
+  }
 
-//   /// Retrieve the stored apps list
-//   List<String> getStoredApps() {
-//     return cwApps;
-//   }
-// }
+  // Getter for email
+  String? get email => _email;
+
+  // Setter for email with validation
+  set email(String? value) {
+    if (value != null && !value.contains('@')) {
+      throw Exception('Invalid email address.');
+    }
+    _email = value;
+  }
+
+  // Method to reset all variables
+  void reset() {
+    _userId = null;
+    _name = null;
+    _email = null;
+    print('AppSingleton reset.');
+  }
+}
