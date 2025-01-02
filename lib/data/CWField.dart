@@ -1,35 +1,35 @@
 class Field {
   int fieldid;
   int seq;
-  String id;
-  String label;
-  int dbType;
-  int inputType;
-  bool visible;
-  bool enabled;
-  int alignment;
-  String defaultimage;
-  String defaulttextfield;
+  String? id;
+  String? label;
+  int? dbType;
+  int? inputType;
+  bool? visible;
+  bool? enabled;
+  int? alignment;
+  String? defaultimage;
+  String? defaulttextfield;
 
   Field({
     required this.fieldid,
     required this.seq,
-    required this.id,
-    required this.label,
-    required this.dbType,
-    required this.inputType,
-    required this.visible,
-    required this.enabled,
-    required this.alignment,
-    required this.defaultimage,
-    required this.defaulttextfield,
+    this.id,
+    this.label,
+    this.dbType,
+    this.inputType,
+    this.visible,
+    this.enabled,
+    this.alignment,
+    this.defaultimage,
+    this.defaulttextfield,
   });
 
   // Factory constructor to create from JSON
   factory Field.fromJson(Map<String, dynamic> json) {
     return Field(
-      fieldid: json['fieldid'],
-      seq: json['seq'],
+      fieldid: json['fieldid'] ?? 0,
+      seq: json['seq'] ?? 0,
       id: json['id'],
       label: json['label'],
       dbType: json['dbType'],

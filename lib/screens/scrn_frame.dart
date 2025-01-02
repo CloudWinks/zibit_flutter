@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:zibit_flutter/workers/wrkr_api_service.dart';
+import 'package:provider/provider.dart';
+import 'package:zibit_flutter/globals/glbl_app_model.dart';
 import 'package:zibit_flutter/screens/scrn_app_details.dart';
+import 'package:zibit_flutter/workers/wrkr_api_service.dart';
+import 'package:zibit_flutter/workers/wrkr_auth_service.dart';
+import 'package:zibit_flutter/globals/glbl_control_definition.dart';
 
 class ScrnFrame extends StatefulWidget {
   const ScrnFrame({super.key});
@@ -11,12 +15,14 @@ class ScrnFrame extends StatefulWidget {
 
 class _ScrnFrameState extends State<ScrnFrame> {
   final ApiService _apiService = ApiService();
+  late LoginService _loginService; // Declare login service
   List<Map<String, dynamic>> cwApps = [];
   bool isLoading = true;
 
   @override
   void initState() {
     super.initState();
+    _loginService = LoginService(context);
     fetchCWApps();
   }
 
@@ -53,8 +59,24 @@ class _ScrnFrameState extends State<ScrnFrame> {
     }
   }
 
+  Future<void> _logout() async {
+    try {
+      await _loginService.signOut(); // Call the sign-out method
+      Navigator.pushReplacementNamed(
+          context, '/login'); // Navigate back to login
+      print('User logged out successfully');
+    } catch (error) {
+      print('Logout failed: $error');
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Logout failed: $error')),
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
+    final appModel = Provider.of<AppModel>(context, listen: false);
+
     return Scaffold(
       backgroundColor: Colors.blue[50],
       appBar: AppBar(
@@ -64,6 +86,15 @@ class _ScrnFrameState extends State<ScrnFrame> {
         ),
         centerTitle: true,
         backgroundColor: Colors.blue[700],
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.logout),
+            tooltip: 'Logout',
+            onPressed: () {
+              _logout(); // Call the logout method
+            },
+          ),
+        ],
       ),
       body: isLoading
           ? const Center(
@@ -106,18 +137,61 @@ class _ScrnFrameState extends State<ScrnFrame> {
                         Icons.arrow_forward_ios,
                         color: Colors.blue,
                       ),
-                      onTap: () {
-
-                        ///
-                        ///Update AppModel
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => ScrnAppDetails(
-                              appDetails: Map<String, dynamic>.from(app),
-                            ),
-                          ),
+                      onTap: () async {
+                        // Update AppModel with the selected app's details
+                        appModel.updateAppData(
+                          appid: app['_appid'] ?? 0,
+                          appname: app['_appname'] ?? '',
+                          targettableid: app['_targettableid'] ?? 0,
+                          targetmode: app['_targetmode'] ?? 0,
+                          targetdatasourceid: app['_targetdatasourceid'] ?? 0,
+                          applogoid: app['_applogoid'] ?? 0,
+                          titleimageid: app['_titleimageid'] ?? 0,
+                          apptype: app['_apptype'] ?? 0,
+                          seq: app['_seq'],
+                          baseurl: app['_baseurl'],
                         );
+
+                        // Fetch the control definition using the target table ID
+                        final int controlID = appModel.targettableid;
+                        try {
+                          const String endpoint =
+                              '/Query/CWGetControlDefinition';
+                          final requestBody = {'ControlID': controlID};
+
+                          // Debugging logs
+                          print('Fetching Control Definition...');
+                          print('Endpoint: $endpoint');
+                          print('Request Body: $requestBody');
+
+                          // Call the API
+                          final controlDefinitionResponse =
+                              await _apiService.callAPI(endpoint, requestBody);
+
+                          // Debugging log for API response
+                          print(
+                              'Control Definition Response: $controlDefinitionResponse');
+
+                          // Parse and save the control definition
+                          final controlDefinition = ControlDefinition.fromJson(
+                              controlDefinitionResponse);
+
+                          // Navigate to app details screen with control definition
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => ScrnAppDetails(
+                                  controlDefinition: controlDefinition),
+                            ),
+                          );
+                        } catch (error) {
+                          print('Error fetching control definition: $error');
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                                content: Text(
+                                    'Failed to fetch control definition.')),
+                          );
+                        }
                       },
                     ),
                   );

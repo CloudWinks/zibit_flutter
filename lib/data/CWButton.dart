@@ -1,31 +1,32 @@
 class Button {
   int buttonid;
   int seq;
-  String name;
-  String action;
-  String keyid;
-  int targetcontrolid;
-  int targettableid;
-  int targetcontrolmodeid;
+  String? name;
+  String? action;
+  String? keyid;
+  int? targetcontrolid;
+  int? targettableid;
+  int? targetcontrolmodeid;
 
   Button({
     required this.buttonid,
     required this.seq,
-    required this.name,
-    required this.action,
-    required this.keyid,
-    required this.targetcontrolid,
-    required this.targettableid,
-    required this.targetcontrolmodeid,
+    this.name,
+    this.action,
+    this.keyid,
+    this.targetcontrolid,
+    this.targettableid,
+    this.targetcontrolmodeid,
   });
 
   // Factory constructor to create from JSON
   factory Button.fromJson(Map<String, dynamic> json) {
     return Button(
-      buttonid: json['buttonid'],
-      seq: json['seq'],
+      buttonid: json['buttonid'] ?? 0,
+      seq: json['seq'] ?? 0,
       name: json['name'],
-      action: json['action'],
+      // Handle action field as either int or string
+      action: json['action'] != null ? json['action'].toString() : null,
       keyid: json['keyid'],
       targetcontrolid: json['targetcontrolid'],
       targettableid: json['targettableid'],
