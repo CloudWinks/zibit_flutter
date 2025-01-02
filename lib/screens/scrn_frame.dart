@@ -107,6 +107,9 @@ class _ScrnFrameState extends State<ScrnFrame> {
                         color: Colors.blue,
                       ),
                       onTap: () {
+
+                        ///
+                        ///Update AppModel
                         Navigator.push(
                           context,
                           MaterialPageRoute(

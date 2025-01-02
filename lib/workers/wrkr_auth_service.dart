@@ -1,11 +1,17 @@
+import 'package:flutter/material.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'dart:convert';
 import 'package:flutter_facebook_auth/flutter_facebook_auth.dart';
+import 'package:provider/provider.dart';
 
 class LoginService {
-  final GoogleSignIn _googleSignIn = GoogleSignIn(
-      clientId:
-          '572898597844-8piriqvtp98pb04ui0hbh9lcftug19dv.apps.googleusercontent.com');
+  final GlobalKey<NavigatorState> _navigatorKey;
+  final GoogleSignIn _googleSignIn;
+
+  LoginService(BuildContext context) 
+    : _navigatorKey = Provider.of<GlobalKey<NavigatorState>>(context, listen: false),
+      _googleSignIn = GoogleSignIn(
+          clientId: '572898597844-cnqh7i6clhb3njerg0r70odilc7pies9.apps.googleusercontent.com');
 
   Future<Map<String, dynamic>?> signInWithGoogle() async {
     try {

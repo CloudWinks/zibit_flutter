@@ -1,55 +1,68 @@
 import 'package:flutter/material.dart';
-import 'dart:convert';
+import 'package:provider/provider.dart';
+import 'package:zibit_flutter/globals/glbl_user_model.dart';
 import 'package:zibit_flutter/workers/wrkr_auth_service.dart';
 import 'package:zibit_flutter/workers/wrkr_api_service.dart';
-import 'package:zibit_flutter/workers/wrkr_singleton.dart';
+import 'package:zibit_flutter/workers/wrkr_error_handler.dart';
 
 class LoginScreen extends StatefulWidget {
+  const LoginScreen({super.key});
+
   @override
   _LoginScreenState createState() => _LoginScreenState();
 }
 
 class _LoginScreenState extends State<LoginScreen> {
-  final LoginService _loginService = LoginService();
+  late final LoginService _loginService;
   final ApiService _apiService = ApiService();
 
+  @override
+  void initState() {
+    super.initState();
+    _loginService = LoginService(context);
+  }
+
   Future<void> saveUserData(Map<String, dynamic> userData) async {
-    const String endpoint =
-        '/Query/UpdateOrCreateUserBySocialID'; // Specific endpoint
+    const String endpoint = '/Query/UpdateOrCreateUserBySocialID';
 
     try {
       final response = await _apiService.callAPI(endpoint, userData);
 
-      // Extract userId, name, and email from response and store them in the singleton
       if (response is List && response.isNotEmpty) {
         final fields = response[0]['fields'];
         final userId = fields.firstWhere(
-          (field) =>
-              field['name'] == 'NewUserID' ||
-              field['name'] == 'UpdatedUserID' ||
-              field['name'] == 'UserId', // Check for 'UserId'
+          (field) => 
+              field['name'] == 'NewUserID' || 
+              field['name'] == 'UpdatedUserID' || 
+              field['name'] == 'UserId',
           orElse: () => {'value': null},
         )['value'];
-
+        final userIdValue = userId is String ? int.parse(userId) : userId;
         if (userId != null) {
-          // Save userId, name, and email in the singleton
-          AppSingleton().userId = userId; // Save userId globally
-          AppSingleton().name = userData['firstName'] +
-              ' ' +
-              userData['lastName']; // Combine names
-          AppSingleton().email = userData['email']; // Save email globally
-
-          print('User ID saved in singleton: ${AppSingleton().userId}');
-          print('User Name saved in singleton: ${AppSingleton().name}');
-          print('User Email saved in singleton: ${AppSingleton().email}');
-        } else {
-          throw Exception('UserID not found in response.');
+          final userModel = Provider.of<UserModel>(context, listen: false);
+          userModel.updateUserData(
+            userId: userIdValue as int, // Convert string to int
+            email: userData['email'],
+            firstName: userData['firstName'],
+            lastName: userData['lastName'],
+            username: userData['email'], // Assuming username is email for now
+            phoneNumber: userData['phoneNumber'],
+            dateOfBirth: userData['dateOfBirth'] != null ? DateTime.parse(userData['dateOfBirth']) : null,
+            gender: userData['gender'],
+            country: userData['country'],
+            languagePreference: userData['languagePreference'],
+            themePreference: userData['themePreference'],
+            notificationPreferences: userData['notificationPreferences'],
+            googleID: userData['socialID'],
+            facebookID: null, // Not applicable for Google login
+            lastLogin: DateTime.now(),
+          );
+          print('User data updated: userId: $userId, name: ${userModel.firstName} ${userModel.lastName}, email: ${userModel.email}');
+          Navigator.pushReplacementNamed(context, '/frame');
         }
-      } else {
-        throw Exception('Unexpected API response format.');
       }
     } catch (error) {
-      throw Exception('Error while saving user data: $error');
+      ErrorHandler.handleError(error, customMessage: 'Failed to save user data', context: context);
     }
   }
 
@@ -60,17 +73,17 @@ class _LoginScreenState extends State<LoginScreen> {
         print('Google Login Success: $user');
 
         final userData = {
-          "socialID":
-              user['socialID'] ?? user['id'], // Check for alternate key names
+          "socialID": user['socialID'] ?? user['id'],
           "socialType": "Google",
           "email": user['email'],
           "firstName": user['name']?.split(' ')?.first ?? '',
           "lastName": user['name']?.split(' ')?.last ?? '',
+          // Note: You might want to fetch or set these from user data or defaults
           "username": user['email'],
-          "phoneNumber": '',
-          "dateOfBirth": null,
-          "gender": '',
-          "country": '',
+          "phoneNumber": '', // Assuming no phone number from Google login
+          "dateOfBirth": null, // Not provided by Google login
+          "gender": '', // Not provided by Google login
+          "country": '', // Not provided by Google login
           "languagePreference": "en",
           "themePreference": "dark",
           "notificationPreferences": "all",
@@ -80,9 +93,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
         try {
           await saveUserData(userData);
-
           print('User data saved successfully.');
-          Navigator.pushReplacementNamed(context, '/frame');
         } catch (apiError) {
           print('Failed to save user data: $apiError');
           ScaffoldMessenger.of(context).showSnackBar(
